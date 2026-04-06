@@ -1,121 +1,281 @@
-Project Name:
+# 💰 Finance Dashboard Backend
 
-Finance Dashboard Backend
-Description:
+## 📌 Project Overview
 
-This is a backend system for a finance dashboard that manages financial records and provides role-based access control for different users. The system allows Admins, Analysts, and Viewers to interact with the system according to their permissions.
+This project is a **Finance Data Processing and Access Control Backend** built using Node.js and MongoDB.
+It provides APIs for managing financial records and enforcing **role-based access control**.
 
-Key Features:
+The system supports three roles:
 
-User registration and login
-Role-based access control (Admin / Analyst / Viewer)
-CRUD operations for financial records
-Dashboard summary API (total income, expenses, net balance)
-Input validation and error handling
-Tech Stack:
-Backend: Node.js, Express.js
-Database: MongoDB (via Mongoose)
-Authentication: JWT
-Other Libraries: bcryptjs, dotenv, cors
+* **Admin** → Full access (CRUD + dashboard)
+* **Analyst** → Read records + dashboard insights
+* **Viewer** → Read-only access
 
+---
+
+## 🚀 Features
+
+* User Registration & Login (JWT आधारित authentication)
+* Role-Based Access Control (RBAC)
+* Financial Records CRUD APIs
+* Dashboard Summary (Income, Expense, Balance)
+* Filtering (type, category)
+* Clean architecture (MVC pattern)
+* Error handling & validation
+
+---
+
+## 🛠️ Tech Stack
+
+* **Backend:** Node.js, Express.js
+* **Database:** MongoDB (Mongoose)
+* **Authentication:** JWT
+* **Libraries:** bcryptjs, dotenv, cors
+
+---
+
+## 📁 Project Structure
+
+```
 finance-backend/
 ├── config/
-│   └── db.js                # MongoDB connection
 ├── models/
-│   ├── User.js              # User schema
-│   └── Record.js            # Financial record schema
 ├── middleware/
-│   ├── authMiddleware.js    # JWT authentication
-│   └── roleMiddleware.js    # Role-based access control
 ├── controllers/
-│   ├── authController.js
-│   ├── recordController.js
-│   └── dashboardController.js
 ├── routes/
-│   ├── authRoutes.js
-│   ├── recordRoutes.js
-│   └── dashboardRoutes.js
 ├── app.js
 ├── server.js
-└── package.json
+├── .env.example
+├── package.json
+```
 
+---
 
+## ⚙️ Setup & Run
 
+### 1. Clone Repository
 
-Setup Instructions
-Clone the repository
+```bash
 git clone <your_repo_url>
 cd finance-backend
-Install dependencies
+```
+
+### 2. Install Dependencies
+
+```bash
 npm install
-Create .env file in root:
+```
+
+### 3. Setup Environment Variables
+
+```bash
+cp .env.example .env
+```
+
+Update `.env`:
+
+```
 MONGO_URI=your_mongodb_connection_string
-Start the server
+PORT=5000
+```
+
+### 4. Start Server
+
+```bash
 node server.js
+```
 
-or with nodemon (recommended for development)
+or
 
+```bash
 nodemon server.js
-Server runs on: http://localhost:5000
-API Endpoints
-1. Authentication
-Endpoint	Method	Body	Access
-/api/auth/register	POST	{ "name", "email", "password", "role" }	Public
-/api/auth/login	POST	{ "email", "password" }	Public
+```
 
-Response: JWT token
-Use token for all protected routes: Authorization: Bearer <token>
+✅ Server runs on: `http://localhost:5000`
 
-2. Financial Records
-Endpoint	Method	Body	Access
-/api/records/	POST	{ "amount", "type", "category", "notes" }	Admin only
-/api/records/	GET	?type=&category=	Admin / Analyst / Viewer
-/api/records/:id	PUT	{ "amount", "category", "notes" }	Admin only
-/api/records/:id	DELETE	-	Admin only
+---
 
-Notes:
+## 🔐 Authentication
 
-type → "income" or "expense"
-category → string (e.g., Salary, Food, Rent)
-3. Dashboard Summary
-Endpoint	Method	Access
-/api/dashboard/	GET	Admin / Analyst
+### Register
 
-Response Example:
+`POST /api/auth/register`
 
+```json
+{
+  "name": "Admin",
+  "email": "admin@example.com",
+  "password": "123456",
+  "role": "admin"
+}
+```
+
+### Login
+
+`POST /api/auth/login`
+
+```json
+{
+  "email": "admin@example.com",
+  "password": "123456"
+}
+```
+
+📌 Response:
+
+```
+{
+  "token": "JWT_TOKEN"
+}
+```
+
+👉 Use token in headers:
+
+```
+Authorization: Bearer <token>
+```
+
+---
+
+## 💰 Financial Records API
+
+### Create Record (Admin only)
+
+`POST /api/records/`
+
+```json
+{
+  "amount": 5000,
+  "type": "income",
+  "category": "Salary",
+  "notes": "March salary"
+}
+```
+
+---
+
+### Get Records (All roles)
+
+`GET /api/records/`
+
+Filter:
+
+```
+/api/records/?type=income&category=Salary
+```
+
+---
+
+### Update Record (Admin only)
+
+`PUT /api/records/:id`
+
+---
+
+### Delete Record (Admin only)
+
+`DELETE /api/records/:id`
+
+---
+
+## 📊 Dashboard API
+
+### Get Summary (Admin + Analyst)
+
+`GET /api/dashboard/`
+
+```json
 {
   "totalIncome": 15000,
   "totalExpense": 5000,
   "netBalance": 10000
 }
-Role-Based Access
-Role	Permissions
-Admin	Full access (CRUD + dashboard)
-Analyst	Read records + dashboard summary
-Viewer	Read-only records (cannot create/update/delete/dashboard)
-Testing Guide
-Register Users for Admin, Analyst, Viewer
-Login → Get JWT token
-Set token in Postman environment variable
-Test CRUD operations: Admin can create/update/delete, others cannot
-Test Dashboard: Only Admin & Analyst can access
-Test Filters: GET /api/records/?type=income&category=Salary
+```
 
-Use Postman Collection: finance-backend.postman_collection.json
-Variables: adminToken, analystToken, viewerToken, recordId
+---
 
-Validation & Error Handling
-Missing required fields → 400 Bad Request
-Unauthorized access → 401 Unauthorized
-Forbidden operation (role restriction) → 403 Access Denied
-Record not found → 404 Not Found
-Optional Enhancements (Future)
-Pagination for records
-Search support by category/date
-Soft delete (isDeleted flag)
-Unit & integration tests
-Swagger API documentation
-Deployment
-Can be deployed on Render, Railway, or Heroku
-Set MONGO_URI as environment variable
-Use npm start to launch
+## 🔒 Role-Based Access
+
+| Role    | Permissions      |
+| ------- | ---------------- |
+| Admin   | Full access      |
+| Analyst | Read + Dashboard |
+| Viewer  | Read-only        |
+
+---
+
+## 🧪 Testing (Postman)
+
+1. Import `finance-backend.postman_collection.json`
+2. Register users (Admin, Analyst, Viewer)
+3. Login → Copy token
+4. Set token in variables:
+
+   * `adminToken`
+   * `analystToken`
+   * `viewerToken`
+5. Test all APIs
+
+---
+
+## ⚠️ Error Handling
+
+| Error         | Status |
+| ------------- | ------ |
+| Missing input | 400    |
+| Unauthorized  | 401    |
+| Forbidden     | 403    |
+| Not found     | 404    |
+
+---
+
+## 🌐 Deployment (Optional)
+
+You can deploy using:
+
+* Render
+* Railway
+* Heroku
+
+Set environment variable:
+
+```
+MONGO_URI
+```
+
+---
+
+## 📦 Quick Run (One Command)
+
+```bash
+git clone <repo> && cd finance-backend && npm install && cp .env.example .env && node server.js
+```
+
+---
+
+## 📝 Notes
+
+* This project focuses on **backend design, logic, and access control**
+* Not production-ready but **structured for real-world understanding**
+* Demonstrates **clean code + scalable architecture**
+
+---
+
+## 👨‍💻 Author
+
+Vaishnavi Dhekare
+
+---
+
+## 🎯 Conclusion
+
+This project demonstrates:
+
+* Backend architecture design
+* Role-based access control
+* API development best practices
+* Data handling and validation
+
+---
+
+🔥 **Ready for submission**
